@@ -95,29 +95,45 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints, setEcoPoints }
         </div>
       </div>
       {/* Redeem Rewards — 100 pts = ₹5 */}
-      <RedeemRewards ecoPoints={ecoPoints} setEcoPoints={setEcoPoints} />
+      <RedeemRewards ecoPoints={ecoPoints} setEcoPoints={setEcoPoints} userProfile={userProfile} />
 
     </div>
   );
 };
 
-const RedeemRewards = ({ ecoPoints, setEcoPoints }) => {
+const RedeemRewards = ({ ecoPoints, setEcoPoints, userProfile }) => {
   const [redeemed, setRedeemed] = useState(null);
   const rate = 5; // ₹5 per 100 points
   const maxDiscount = Math.floor(ecoPoints / 100) * rate;
 
   const coupons = [
-    { id: 1, label: 'Grocery Discount', icon: <ShoppingBag size={24} />, cost: 100, discount: 5, color: 'var(--primary)' },
-    { id: 2, label: 'Coffee Voucher', icon: <Coffee size={24} />, cost: 200, discount: 10, color: 'var(--warning)' },
-    { id: 3, label: 'Fuel Cashback', icon: <Fuel size={24} />, cost: 500, discount: 25, color: 'var(--secondary)' },
-    { id: 4, label: 'Mega Discount', icon: <Gift size={24} />, cost: 1000, discount: 50, color: 'rgb(139, 92, 246)' },
+    { id: 1, label: 'Electricity Bill', icon: <Zap size={24} />, cost: 100, discount: 5, color: 'var(--warning)' },
+    { id: 2, label: 'Water Bill', icon: <Activity size={24} />, cost: 200, discount: 10, color: 'rgb(59, 130, 246)' },
+    { id: 3, label: 'Gas Bill', icon: <Fuel size={24} />, cost: 500, discount: 25, color: 'var(--secondary)' },
+    { id: 4, label: 'Property Tax', icon: <Gift size={24} />, cost: 1000, discount: 50, color: 'var(--primary)' },
   ];
 
-  const handleRedeem = (coupon) => {
+  const handleRedeem = async (coupon) => {
     if (ecoPoints < coupon.cost) return;
-    setEcoPoints(prev => prev - coupon.cost);
     const code = `ECO-${coupon.label.split(' ')[0].toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    setRedeemed({ ...coupon, code });
+    try {
+      const res = await fetch(`http://localhost:8000/users/${userProfile?.id}/redeem`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ points_to_redeem: coupon.cost, coupon_type: coupon.label })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEcoPoints(data.eco_points);
+        setRedeemed({ ...coupon, code });
+      } else {
+        alert(data.detail || 'Redemption failed');
+      }
+    } catch {
+      // Fallback: update locally if backend is down
+      setEcoPoints(prev => prev - coupon.cost);
+      setRedeemed({ ...coupon, code });
+    }
   };
 
   return (
