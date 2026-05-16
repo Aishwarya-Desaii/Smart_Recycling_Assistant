@@ -98,6 +98,7 @@ const WasteSegregation = ({ userProfile, setEcoPoints }) => {
 
 const CommunityImpact = ({ userProfile }) => {
   const [history, setHistory] = useState([]);
+  const [events, setEvents] = useState([]);
   
   useEffect(() => {
     if (userProfile?.id) {
@@ -106,7 +107,36 @@ const CommunityImpact = ({ userProfile }) => {
         .then(data => setHistory(data))
         .catch(e => console.error(e));
     }
-  }, [userProfile?.id, userProfile?.eco_points]); // refresh when points change
+    
+    fetch('http://localhost:8000/community/events')
+      .then(res => res.json())
+      .then(data => setEvents(data))
+      .catch(e => console.error(e));
+  }, [userProfile?.id, userProfile?.eco_points]);
+
+  const handleShare = async () => {
+    const text = `I just recycled ${userProfile?.total_waste_kg?.toFixed(2) || 0}kg of waste and saved ${userProfile?.total_co2_saved?.toFixed(2) || 0}kg of CO₂ on the EcoSmart Platform! Join me in saving the planet! 🌍♻️`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'My Eco Impact', text: text, url: window.location.href });
+      } catch (err) {
+        console.error('Share failed:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(text);
+      alert("Impact stats copied to clipboard! You can now paste and share them.");
+    }
+  };
+
+  const handleJoinEvent = async (eventId) => {
+    try {
+      const res = await fetch(`http://localhost:8000/community/events/${eventId}/join`, { method: 'POST' });
+      const updatedEvent = await res.json();
+      setEvents(events.map(ev => ev.id === eventId ? updatedEvent : ev));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
@@ -135,20 +165,27 @@ const CommunityImpact = ({ userProfile }) => {
             )) : <p style={{ color: 'var(--text-muted)' }}>Error loading history.</p>}
           </div>
           
-          <button className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', background: 'var(--primary)' }}><Send size={16} /> Share on Social Media</button>
+          <button className="btn-primary" onClick={handleShare} style={{ width: '100%', marginTop: '1.5rem', background: 'var(--primary)' }}><Send size={16} /> Share on Social Media</button>
         </div>
         <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--glass-border)' }}>
           <h3 style={{ marginBottom: '1rem' }}>Local Events & Challenges</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ padding: '1rem', background: 'var(--bg-card)', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--primary)', marginBottom: '0.3rem' }}>Plastic-Free Week</h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Join 450 neighbors in reducing plastic waste.</p>
-              <button className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>Join Challenge</button>
-            </div>
-            <div style={{ padding: '1rem', background: 'var(--bg-card)', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--warning)', marginBottom: '0.3rem' }}>Downtown Clean-up</h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>This Saturday, 10 AM. Earn 200 Pts.</p>
-            </div>
+            {events.length > 0 ? events.map(ev => (
+              <div key={ev.id} style={{ padding: '1rem', background: 'var(--bg-card)', borderRadius: '8px' }}>
+                <h4 style={{ color: ev.color, marginBottom: '0.3rem', display: 'flex', justifyContent: 'space-between' }}>
+                  {ev.title} <span style={{ fontSize: '0.8rem', color: 'var(--primary)', background: 'var(--glass-border-light)', padding: '0.2rem 0.5rem', borderRadius: '12px' }}>{ev.points} Pts</span>
+                </h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{ev.description}</p>
+                <button 
+                  className="btn-primary" 
+                  onClick={() => handleJoinEvent(ev.id)}
+                  disabled={ev.joined}
+                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: ev.joined ? 'var(--text-muted)' : 'var(--primary)', cursor: ev.joined ? 'not-allowed' : 'pointer' }}
+                >
+                  {ev.joined ? 'Joined ✓' : 'Join Challenge'}
+                </button>
+              </div>
+            )) : <p>Loading events...</p>}
           </div>
         </div>
       </div>
