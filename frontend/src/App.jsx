@@ -327,9 +327,9 @@ const RecyclerDashboard = ({ userProfile, setActiveTab }) => (
 
 const RecyclerPickups = ({ setEcoPoints }) => {
   const [pickups, setPickups] = useState([
-    { id: 'PK-101', type: 'Bulk E-Waste', address: 'Times Square, New York, NY', points: 50 },
-    { id: 'PK-102', type: 'Industrial Scrap', address: 'Central Park, New York, NY', points: 100 },
-    { id: 'PK-103', type: 'Mixed Recycling', address: 'Empire State Building, New York, NY', points: 30 }
+    { id: 'PK-101', type: 'Bulk E-Waste', address: 'Mahalakshmi Temple, Kolhapur, Maharashtra', points: 50 },
+    { id: 'PK-102', type: 'Industrial Scrap', address: 'Rankala Lake, Kolhapur, Maharashtra', points: 100 },
+    { id: 'PK-103', type: 'Mixed Recycling', address: 'Shivaji University, Kolhapur, Maharashtra', points: 30 }
   ]);
 
   const handleNavigate = (address) => {
