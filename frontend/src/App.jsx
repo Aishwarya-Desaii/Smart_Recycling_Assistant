@@ -408,7 +408,7 @@ const RecyclerDashboard = ({ userProfile, setActiveTab }) => (
     <div className="glass-panel stat-card" onClick={() => setActiveTab('earnings')} style={{ gridColumn: 'span 4', cursor: 'pointer', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
       <div className="stat-icon orange" style={{ width: '60px', height: '60px', marginBottom: '1rem', boxShadow: '0 0 30px rgba(245, 158, 11, 0.2)' }}><Wallet size={30} /></div>
       <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.8rem', fontWeight: 'bold' }}>Today's Est. Earnings</p>
-      <h3 style={{ fontSize: '2.8rem', color: 'var(--warning)', fontWeight: 'bold' }}>$145<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>.00</span></h3>
+      <h3 style={{ fontSize: '2.8rem', color: 'var(--warning)', fontWeight: 'bold' }}>₹145<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>.00</span></h3>
     </div>
   </div>
 );
@@ -419,6 +419,8 @@ const RecyclerPickups = ({ setEcoPoints }) => {
     { id: 'PK-102', type: 'Industrial Scrap', address: 'Rankala Lake, Kolhapur, Maharashtra', points: 100 },
     { id: 'PK-103', type: 'Mixed Recycling', address: 'Shivaji University, Kolhapur, Maharashtra', points: 30 }
   ]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newRoute, setNewRoute] = useState({ type: '', address: '' });
 
   const handleNavigate = (address) => {
     // Open Google Maps Directions in a new tab
@@ -435,9 +437,40 @@ const RecyclerPickups = ({ setEcoPoints }) => {
     }
   };
 
+  const handleAddRoute = (e) => {
+    e.preventDefault();
+    if (!newRoute.type || !newRoute.address) return;
+    const newId = `PK-${Math.floor(100 + Math.random() * 900)}`;
+    setPickups([...pickups, { id: newId, type: newRoute.type, address: newRoute.address, points: Math.floor(Math.random() * 50) + 20 }]);
+    setNewRoute({ type: '', address: '' });
+    setShowAddForm(false);
+  };
+
   return (
     <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
-      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: 'var(--text-main)' }}>Active Pickups Queue</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '2rem', color: 'var(--text-main)', margin: 0 }}>Active Pickups Queue</h2>
+        <button className="btn-primary" onClick={() => setShowAddForm(!showAddForm)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {showAddForm ? 'Cancel' : '+ Add Route'}
+        </button>
+      </div>
+
+      {showAddForm && (
+        <form onSubmit={handleAddRoute} style={{ background: 'var(--glass-bg)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1', minWidth: '200px' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Waste Type</label>
+            <input type="text" placeholder="e.g., Household Trash" value={newRoute.type} onChange={(e) => setNewRoute({ ...newRoute, type: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-main)' }} required />
+          </div>
+          <div style={{ flex: '2', minWidth: '250px' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Pickup Address</label>
+            <input type="text" placeholder="Enter exact location..." value={newRoute.address} onChange={(e) => setNewRoute({ ...newRoute, address: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-main)' }} required />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <button type="submit" className="btn-primary" style={{ height: '42px' }}>Confirm Route</button>
+          </div>
+        </form>
+      )}
+
       {pickups.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
           <CheckCircle size={48} color="var(--success)" style={{ margin: '0 auto 1rem', display: 'block' }} />
@@ -447,7 +480,7 @@ const RecyclerPickups = ({ setEcoPoints }) => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {pickups.map(pickup => (
-            <div key={pickup.id} style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--border-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+            <div key={pickup.id} style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--border-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <strong style={{ fontSize: '1.1rem', color: 'var(--text-main)' }}>{pickup.id} - {pickup.type}</strong>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
