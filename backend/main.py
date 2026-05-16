@@ -182,6 +182,29 @@ def update_scan_impact(user_id: int, req: ScanImpactRequest, db: Session = Depen
         "trees_saved": round(user.trees_saved, 2)
     }
 
+class RedeemRequest(BaseModel):
+    points_to_redeem: int
+    coupon_type: str
+
+@app.post("/users/{user_id}/redeem")
+def redeem_points(user_id: int, req: RedeemRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.eco_points < req.points_to_redeem:
+        raise HTTPException(status_code=400, detail="Insufficient points")
+    
+    user.eco_points -= req.points_to_redeem
+    db.commit()
+    db.refresh(user)
+    
+    return {
+        "success": True,
+        "eco_points": user.eco_points,
+        "redeemed": req.points_to_redeem,
+        "coupon_type": req.coupon_type
+    }
+
 @app.get("/users/{user_id}/history")
 def get_user_history(user_id: int, db: Session = Depends(get_db)):
     scans = db.query(ScanHistory).filter(ScanHistory.user_id == user_id).order_by(ScanHistory.timestamp.desc()).all()
