@@ -193,8 +193,9 @@ const CommunityImpact = ({ userProfile }) => {
   );
 };
 
-const RewardsGamification = ({ userProfile, ecoPoints }) => {
+const RewardsGamification = ({ userProfile, ecoPoints, setEcoPoints }) => {
   const [data, setData] = useState({ badges: [], recent_activity: [], leaderboard: [] });
+  const [redeemed, setRedeemed] = useState(null);
 
   useEffect(() => {
     if (userProfile?.id) {
@@ -211,19 +212,58 @@ const RewardsGamification = ({ userProfile, ecoPoints }) => {
     Star: <Star size={30} />
   };
 
+  const coupons = [
+    { id: 1, label: 'Grocery Discount', cost: 100, discount: 5, color: 'var(--primary)' },
+    { id: 2, label: 'Coffee Voucher', cost: 200, discount: 10, color: 'var(--warning)' },
+    { id: 3, label: 'Fuel Cashback', cost: 500, discount: 25, color: 'var(--secondary)' },
+    { id: 4, label: 'Mega Discount', cost: 1000, discount: 50, color: 'rgb(139, 92, 246)' },
+  ];
+
+  const handleRedeem = (coupon) => {
+    if (ecoPoints < coupon.cost) return;
+    setEcoPoints(prev => prev - coupon.cost);
+    const code = `ECO-${coupon.label.split(' ')[0].toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    setRedeemed({ ...coupon, code });
+  };
+
   return (
     <div className="glass-panel animate-fade-in" style={{ padding: '2rem', backgroundImage: 'url(/eco_bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundBlendMode: 'overlay', backgroundColor: 'rgba(255,255,255,0.95)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--text-main)' }}><Gift color="var(--primary)" /> Rewards & Gamification</h2>
-        <img src="/eco_rewards.png" alt="Eco Rewards" style={{ height: '100px', width: 'auto', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
+        <div style={{ textAlign: 'right' }}>
+          <span style={{ padding: '0.4rem 1rem', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--primary)', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>100 pts = ₹5 | Balance: {ecoPoints} pts</span>
+        </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         <div>
           <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Redeem Rewards</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-            <button className="btn-primary" style={{ background: 'var(--bg-card)', color: 'var(--text-main)', justifyContent: 'space-between' }}><span>50% Transit Pass</span> <span style={{ color: 'var(--primary)' }}>-1000 Pts</span></button>
-            <button className="btn-primary" style={{ background: 'var(--bg-card)', color: 'var(--text-main)', justifyContent: 'space-between' }}><span>Eco-Friendly Grocery Kit</span> <span style={{ color: 'var(--primary)' }}>-2500 Pts</span></button>
-          </div>
+
+          {redeemed ? (
+            <div className="animate-fade-in" style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', border: '2px dashed var(--success)', marginBottom: '2rem' }}>
+              <h3 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>🎉 Coupon Redeemed!</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '0.8rem' }}>{redeemed.label} — ₹{redeemed.discount} OFF</p>
+              <div style={{ padding: '0.8rem 1.5rem', background: 'var(--bg-card)', borderRadius: '10px', display: 'inline-block', border: '2px dashed var(--primary)', marginBottom: '0.8rem' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginBottom: '0.2rem' }}>Coupon Code</p>
+                <h3 style={{ color: 'var(--primary)', letterSpacing: '2px', margin: 0 }}>{redeemed.code}</h3>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
+                <button className="btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }} onClick={() => { navigator.clipboard.writeText(redeemed.code); alert('Copied!'); }}>Copy Code</button>
+                <button className="btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-color)' }} onClick={() => setRedeemed(null)}>Redeem More</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '2rem' }}>
+              {coupons.map(c => {
+                const canAfford = ecoPoints >= c.cost;
+                return (
+                  <button key={c.id} className="btn-primary" onClick={() => canAfford && handleRedeem(c)} style={{ background: 'var(--bg-card)', color: 'var(--text-main)', justifyContent: 'space-between', opacity: canAfford ? 1 : 0.5, cursor: canAfford ? 'pointer' : 'not-allowed', borderLeft: `4px solid ${c.color}` }}>
+                    <span>{c.label} (₹{c.discount} OFF)</span>
+                    <span style={{ color: canAfford ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 'bold' }}>-{c.cost} Pts</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           
           <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Badges & Achievements</h3>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -1085,7 +1125,7 @@ function App() {
         if (activeTab === 'dashboard') return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} setEcoPoints={setEcoPoints} userProfile={userProfile} />;
         if (activeTab === 'scanning') return <WasteScanning setActiveTab={changeTab} setEcoPoints={setEcoPoints} setNotifications={setNotifications} userProfile={userProfile} setUserProfile={setUserProfile} />;
         if (activeTab === 'segregation') return <WasteSegregation userProfile={userProfile} setEcoPoints={setEcoPoints} />;
-        if (activeTab === 'rewards') return <RewardsGamification userProfile={userProfile} ecoPoints={ecoPoints} />;
+        if (activeTab === 'rewards') return <RewardsGamification userProfile={userProfile} ecoPoints={ecoPoints} setEcoPoints={setEcoPoints} />;
         if (activeTab === 'community') return <CommunityImpact userProfile={userProfile} />;
         if (activeTab === 'map') return <MapLocator />;
         if (activeTab === 'trucks') return <TruckSchedule pickups={pickups} />;
