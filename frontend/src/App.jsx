@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Leaf, Coins, Bell, LogOut } from 'lucide-react';
+import { Leaf, Coins, Bell, LogOut, Users, Send, MapPin, Navigation, Route, Wallet, Calendar, ShieldCheck, AlertTriangle, CheckCircle, Activity, Award, BookOpen, Gift, PlayCircle, Star, Truck } from 'lucide-react';
 import './App.css';
 import WasteScanning from './components/WasteScanning';
 import CitizenDashboard from './components/CitizenDashboard';
@@ -51,9 +51,9 @@ const CommunityImpact = ({ userProfile }) => {
         <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)' }}>
           <h3 style={{ marginBottom: '1rem', color: 'var(--success)' }}>Your Impact Tracker</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Waste Recycled:</span> <strong>{userProfile?.total_waste_kg || 0} kg</strong></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>CO₂ Saved:</span> <strong>{userProfile?.total_co2_saved || 0} kg</strong></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Trees Saved:</span> <strong>{userProfile?.trees_saved || 0}</strong></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Waste Recycled:</span> <strong>{userProfile?.total_waste_kg ? userProfile.total_waste_kg.toFixed(2) : 0} kg</strong></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>CO₂ Saved:</span> <strong>{userProfile?.total_co2_saved ? userProfile.total_co2_saved.toFixed(2) : 0} kg</strong></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Trees Saved:</span> <strong>{userProfile?.trees_saved ? userProfile.trees_saved.toFixed(2) : 0}</strong></div>
           </div>
           
           <h4 style={{ marginTop: '1.5rem', marginBottom: '0.8rem', color: 'var(--text-main)' }}>Scan History</h4>

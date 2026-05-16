@@ -57,9 +57,9 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
         <div style={{ flex: 1 }}>
           <h3 style={{ color: 'var(--success)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Activity size={20} /> Impact Tracker</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Waste Recycled</p><h4 style={{ fontSize: '1.4rem' }}>{userProfile?.total_waste_kg || 0} kg</h4></div>
-            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>CO₂ Saved</p><h4 style={{ fontSize: '1.4rem' }}>{userProfile?.total_co2_saved || 0} kg</h4></div>
-            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Trees Saved</p><h4 style={{ fontSize: '1.4rem' }}>{userProfile?.trees_saved || 0}</h4></div>
+            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Waste Recycled</p><h4 style={{ fontSize: '1.4rem' }}>{userProfile?.total_waste_kg ? userProfile.total_waste_kg.toFixed(2) : 0} kg</h4></div>
+            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>CO₂ Saved</p><h4 style={{ fontSize: '1.4rem' }}>{userProfile?.total_co2_saved ? userProfile.total_co2_saved.toFixed(2) : 0} kg</h4></div>
+            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Trees Saved</p><h4 style={{ fontSize: '1.4rem' }}>{userProfile?.trees_saved ? userProfile.trees_saved.toFixed(2) : 0}</h4></div>
             <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Streak</p><h4 style={{ fontSize: '1.4rem', color: 'var(--warning)' }}>5 Days 🔥</h4></div>
           </div>
         </div>
