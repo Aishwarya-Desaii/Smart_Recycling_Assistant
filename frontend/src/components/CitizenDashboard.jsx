@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Coins, Camera, Mic, Zap, Activity, MapPin, TreePine } from 'lucide-react';
+import { Coins, Camera, Mic, Zap, Activity, MapPin, TreePine, Truck } from 'lucide-react';
 
 const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
   const [voiceState, setVoiceState] = useState('idle');
