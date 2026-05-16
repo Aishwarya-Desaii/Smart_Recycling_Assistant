@@ -325,19 +325,70 @@ const RecyclerDashboard = ({ userProfile, setActiveTab }) => (
   </div>
 );
 
-const RecyclerPickups = () => (
-  <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
-    <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Active Pickups Queue</h2>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {[1, 2, 3].map(i => (
-        <div key={i} style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div><strong style={{ fontSize: '1.1rem' }}>PK-10{i} - Bulk E-Waste</strong><p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem' }}><MapPin size={14} style={{ display: 'inline' }} /> Sector {i}, North Ave</p></div>
-          <div style={{ display: 'flex', gap: '1rem' }}><button className="btn-primary" style={{ background: 'var(--secondary)' }}>Navigate</button><button className="btn-primary" style={{ background: 'var(--success)' }}>Complete</button></div>
+const RecyclerPickups = ({ setEcoPoints }) => {
+  const [pickups, setPickups] = useState([
+    { id: 'PK-101', type: 'Bulk E-Waste', address: 'Times Square, New York, NY', points: 50 },
+    { id: 'PK-102', type: 'Industrial Scrap', address: 'Central Park, New York, NY', points: 100 },
+    { id: 'PK-103', type: 'Mixed Recycling', address: 'Empire State Building, New York, NY', points: 30 }
+  ]);
+
+  const handleNavigate = (address) => {
+    // Open Google Maps Directions in a new tab
+    const query = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
+  };
+
+  const handleComplete = (id, points) => {
+    // Remove from active queue
+    setPickups(pickups.filter(p => p.id !== id));
+    // Reward points/earnings
+    if (setEcoPoints) {
+      setEcoPoints(prev => prev + points);
+    }
+  };
+
+  return (
+    <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
+      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: 'var(--text-main)' }}>Active Pickups Queue</h2>
+      {pickups.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+          <CheckCircle size={48} color="var(--success)" style={{ margin: '0 auto 1rem', display: 'block' }} />
+          <h3>All caught up!</h3>
+          <p>No active pickups in your queue right now.</p>
         </div>
-      ))}
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {pickups.map(pickup => (
+            <div key={pickup.id} style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--border-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+              <div>
+                <strong style={{ fontSize: '1.1rem', color: 'var(--text-main)' }}>{pickup.id} - {pickup.type}</strong>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <MapPin size={14} color="var(--primary)" /> {pickup.address}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button 
+                  className="btn-primary" 
+                  style={{ background: 'var(--secondary)', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  onClick={() => handleNavigate(pickup.address)}
+                >
+                  <Navigation size={16} /> Navigate
+                </button>
+                <button 
+                  className="btn-primary" 
+                  style={{ background: 'var(--success)', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  onClick={() => handleComplete(pickup.id, pickup.points)}
+                >
+                  <CheckCircle size={16} /> Complete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const RecyclerEarnings = () => (
   <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}><h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Earnings</h2><div className="stat-card" style={{ background: 'rgba(251, 191, 36, 0.1)', border: '1px solid var(--warning)' }}><div className="stat-icon orange"><Wallet size={24} /></div><div><h4 style={{ color: 'var(--text-muted)' }}>Total Balance</h4><p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning)' }}>$1,245.50</p></div></div></div>
@@ -562,7 +613,7 @@ function App() {
       case 'Recycler':
         if (activeTab === 'chat') return <AIChatAssistant />;
         if (activeTab === 'dashboard') return <RecyclerDashboard userProfile={userProfile} setActiveTab={setActiveTab} />;
-        if (activeTab === 'pickups') return <RecyclerPickups />;
+        if (activeTab === 'pickups') return <RecyclerPickups setEcoPoints={setEcoPoints} />;
         if (activeTab === 'earnings') return <RecyclerEarnings />;
         return <RecyclerDashboard userProfile={userProfile} setActiveTab={setActiveTab} />;
       case 'NGO':
