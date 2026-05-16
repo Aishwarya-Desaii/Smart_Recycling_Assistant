@@ -31,10 +31,10 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
       </div>
 
       {/* Primary Action: AI Scanner */}
-      <div className="glass-panel stat-card" onClick={() => setActiveTab('scanning')} style={{ gridColumn: 'span 8', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '2.5rem' }}>
+      <div className="glass-panel stat-card" onClick={() => setActiveTab('scanning')} style={{ gridColumn: 'span 8', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%)', border: '1px solid rgba(59, 130, 246, 0.4)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '2.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div className="stat-icon green" style={{ width: '80px', height: '80px', fontSize: '2.5rem', boxShadow: '0 0 30px rgba(16, 185, 129, 0.2)' }}><Camera size={40} /></div>
-          <div className="btn-primary" style={{ padding: '0.75rem 1.5rem', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' }}>Open Scanner <Zap size={18} /></div>
+          <div className="stat-icon blue" style={{ width: '80px', height: '80px', fontSize: '2.5rem', boxShadow: '0 0 30px rgba(59, 130, 246, 0.3)' }}><Camera size={40} /></div>
+          <div className="btn-primary" style={{ padding: '0.75rem 1.5rem', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)' }}>Open Scanner <Zap size={18} /></div>
         </div>
         <h3 style={{ fontSize: '1.8rem', color: 'var(--text-main)', marginBottom: '0.5rem' }}>AI Waste Scanner</h3>
         <p style={{ color: 'var(--text-muted)' }}>Use your device camera or upload an image to instantly classify waste, get disposal guidance, and earn points.</p>
