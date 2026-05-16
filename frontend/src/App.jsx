@@ -562,11 +562,11 @@ function App() {
             <Bell size={20} color={notifications.some(n => n.unread) ? 'var(--primary)' : 'var(--text-muted)'} />
             {notifications.some(n => n.unread) && <div style={{ position: 'absolute', top: -5, right: -5, width: '10px', height: '10px', background: 'var(--danger)', borderRadius: '50%' }}></div>}
             {showNotifications && (
-              <div className="glass-panel" style={{ position: 'absolute', top: '30px', right: '-50px', width: '300px', padding: '1rem', zIndex: 200, background: 'rgba(20,20,25,0.95)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <h4>Notifications</h4><button style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer' }} onClick={() => setNotifications(n => n.map(x => ({ ...x, unread: false })))}>Mark read</button>
+              <div className="glass-panel" style={{ position: 'absolute', top: '30px', right: '-50px', width: '300px', padding: '1rem', zIndex: 200, background: 'var(--bg-card)', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                  <h4 style={{ color: 'var(--text-main)' }}>Notifications</h4><button style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setNotifications(n => n.map(x => ({ ...x, unread: false })))}>Mark read</button>
                 </div>
-                {notifications.map(n => <div key={n.id} style={{ fontSize: '0.85rem', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '0.75rem 0', color: n.unread ? 'white' : 'var(--text-muted)' }}><strong>{n.text}</strong><br /><span>{n.time}</span></div>)}
+                {notifications.map(n => <div key={n.id} style={{ fontSize: '0.85rem', borderBottom: '1px solid var(--glass-border)', padding: '0.75rem 0', color: n.unread ? 'var(--text-main)' : 'var(--text-muted)' }}><strong style={{ fontWeight: n.unread ? '700' : '500' }}>{n.text}</strong><br /><span style={{ color: 'var(--text-muted)' }}>{n.time}</span></div>)}
               </div>
             )}
           </div>
