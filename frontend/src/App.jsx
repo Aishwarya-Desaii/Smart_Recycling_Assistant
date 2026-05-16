@@ -175,8 +175,11 @@ const RewardsGamification = ({ userProfile, ecoPoints }) => {
   };
 
   return (
-    <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
-      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}><Gift color="var(--primary)" /> Rewards & Gamification</h2>
+    <div className="glass-panel animate-fade-in" style={{ padding: '2rem', backgroundImage: 'url(/eco_bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundBlendMode: 'overlay', backgroundColor: 'rgba(255,255,255,0.95)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--text-main)' }}><Gift color="var(--primary)" /> Rewards & Gamification</h2>
+        <img src="/eco_rewards.png" alt="Eco Rewards" style={{ height: '100px', width: 'auto', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         <div>
           <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Redeem Rewards</h3>

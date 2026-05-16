@@ -25,16 +25,16 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
     <div className="dashboard-grid animate-fade-in" style={{ gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem' }}>
 
       {/* Welcome Hero - Spans Full Width */}
-      <div className="glass-panel" style={{ gridColumn: 'span 12', padding: '2.5rem', background: 'radial-gradient(circle at right, rgba(16, 185, 129, 0.15), transparent), var(--glass-bg)' }}>
-        <h2 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>Welcome back, <span className="text-gradient">{userProfile?.name || 'Eco Warrior'}</span>! 🌍</h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '600px' }}>Your recycling efforts have saved approximately <strong>{userProfile?.total_co2_saved || 0}kg of CO₂</strong>. You are currently in the top 15% of your city's leaderboard!</p>
+      <div className="glass-panel" style={{ gridColumn: 'span 12', padding: '2.5rem', background: 'linear-gradient(to right, rgba(255, 255, 255, 0.95) 30%, rgba(255, 255, 255, 0.6) 100%), url(/eco_bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--glass-border-light)' }}>
+        <h2 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Welcome back, <span className="text-gradient">{userProfile?.name || 'Eco Warrior'}</span>! 🌍</h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '600px', fontWeight: '500' }}>Your recycling efforts have saved approximately <strong style={{color: 'var(--primary)'}}>{userProfile?.total_co2_saved ? userProfile.total_co2_saved.toFixed(2) : 0}kg of CO₂</strong>. You are currently in the top 15% of your city's leaderboard!</p>
       </div>
 
       {/* Primary Action: AI Scanner */}
-      <div className="glass-panel stat-card" onClick={() => setActiveTab('scanning')} style={{ gridColumn: 'span 8', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%)', border: '1px solid rgba(59, 130, 246, 0.4)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '2.5rem' }}>
+      <div className="glass-panel stat-card" onClick={() => setActiveTab('scanning')} style={{ gridColumn: 'span 8', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(132, 204, 22, 0.15) 100%)', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '2.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div className="stat-icon blue" style={{ width: '80px', height: '80px', fontSize: '2.5rem', boxShadow: '0 0 30px rgba(59, 130, 246, 0.3)' }}><Camera size={40} /></div>
-          <div className="btn-primary" style={{ padding: '0.75rem 1.5rem', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)' }}>Open Scanner <Zap size={18} /></div>
+          <div className="stat-icon green" style={{ width: '80px', height: '80px', fontSize: '2.5rem', boxShadow: '0 0 30px rgba(16, 185, 129, 0.3)', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}><Camera size={40} /></div>
+          <div className="btn-primary" style={{ padding: '0.75rem 1.5rem', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' }}>Open Scanner <Zap size={18} /></div>
         </div>
         <h3 style={{ fontSize: '1.8rem', color: 'var(--text-main)', marginBottom: '0.5rem' }}>AI Waste Scanner</h3>
         <p style={{ color: 'var(--text-muted)' }}>Use your device camera or upload an image to instantly classify waste, get disposal guidance, and earn points.</p>
