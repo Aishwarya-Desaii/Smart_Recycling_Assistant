@@ -221,9 +221,9 @@ def submit_quiz(req: QuizSubmit, db: Session = Depends(get_db)):
         user.eco_points += points_awarded
         db.commit()
         db.refresh(user)
-        return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points}
+        return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points, "correct_answers": correct_answers}
         
-    return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points if user else 0}
+    return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points if user else 0, "correct_answers": correct_answers}
 
 
 @app.post("/classify")

@@ -172,6 +172,16 @@ const RewardsGamification = ({ userProfile, ecoPoints }) => (
           <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.2)', border: '2px solid var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--secondary)' }} title="Plastic Warrior"><ShieldCheck size={30} /></div>
           <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.2)', border: '2px solid var(--warning)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--warning)' }} title="Zero Waste Master"><Star size={30} /></div>
         </div>
+        
+        <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginTop: '2rem' }}>Recent Points Earned</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem', background: 'var(--bg-card)', borderRadius: '8px', borderLeft: '3px solid var(--success)' }}>
+            <span>Daily Quiz (Correct Answers)</span> <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>+30 Pts</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem', background: 'var(--bg-card)', borderRadius: '8px', borderLeft: '3px solid var(--primary)' }}>
+            <span>AI Waste Scan (Plastic)</span> <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>+20 Pts</span>
+          </div>
+        </div>
       </div>
       <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--glass-border)' }}>
         <h3 style={{ marginBottom: '1rem', color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Award /> Leaderboard</h3>
