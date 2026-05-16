@@ -309,6 +309,24 @@ async def segment_items(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Segmentation error: {e}")
         raise HTTPException(500, str(e))
+# --- Community Events Mock DB ---
+events_db = [
+    {"id": 1, "title": "Plastic-Free Week", "description": "Join 450 neighbors in reducing plastic waste.", "points": 100, "joined": False, "color": "var(--primary)"},
+    {"id": 2, "title": "Downtown Clean-up", "description": "This Saturday, 10 AM. Help the community.", "points": 200, "joined": False, "color": "var(--warning)"}
+]
+
+@app.get("/community/events")
+def get_events():
+    return events_db
+
+@app.post("/community/events/{event_id}/join")
+def join_event(event_id: int):
+    for ev in events_db:
+        if ev["id"] == event_id:
+            if not ev["joined"]:
+                ev["joined"] = True
+            return ev
+    raise HTTPException(404, "Event not found")
 
 
 if __name__ == "__main__":
