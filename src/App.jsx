@@ -137,21 +137,26 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
         <p style={{ color: 'var(--primary)', fontSize: '0.95rem', fontWeight: 'bold', marginTop: '0.5rem' }}>Redeem Rewards ➔</p>
       </div>
 
+      {/* Impact Tracker */}
+      <div className="glass-panel stat-card" onClick={() => setActiveTab('community')} style={{ gridColumn: 'span 8', cursor: 'pointer', padding: '2rem', display: 'flex', gap: '2rem', alignItems: 'center', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+        <div style={{ flex: 1 }}>
+          <h3 style={{ color: 'var(--success)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Activity size={20} /> Impact Tracker</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Waste Recycled</p><h4 style={{ fontSize: '1.4rem' }}>45 kg</h4></div>
+            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>CO₂ Saved</p><h4 style={{ fontSize: '1.4rem' }}>12 kg</h4></div>
+            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Trees Saved</p><h4 style={{ fontSize: '1.4rem' }}>0.5</h4></div>
+            <div><p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Streak</p><h4 style={{ fontSize: '1.4rem', color: 'var(--warning)' }}>5 Days 🔥</h4></div>
+          </div>
+        </div>
+        <div className="stat-icon green" style={{ width: '80px', height: '80px', fontSize: '2.5rem' }}><TreePine size={40} /></div>
+      </div>
+
       {/* Quick Action: Pickups */}
       <div className="glass-panel stat-card" onClick={() => setActiveTab('pickup')} style={{ gridColumn: 'span 4', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <div className="stat-icon purple"><Truck size={28} /></div>
         <div className="stat-info">
           <h3 style={{ color: 'white', fontSize: '1.1rem', marginBottom: '0.25rem' }}>Schedule Pickup</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Heavy or e-waste?</p>
-        </div>
-      </div>
-
-      {/* Quick Action: Community */}
-      <div className="glass-panel stat-card" onClick={() => setActiveTab('community')} style={{ gridColumn: 'span 4', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <div className="stat-icon blue"><Users size={28} /></div>
-        <div className="stat-info">
-          <h3 style={{ color: 'white', fontSize: '1.1rem', marginBottom: '0.25rem' }}>Local Challenges</h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>450+ neighbors active.</p>
         </div>
       </div>
 
@@ -166,19 +171,91 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
         </div>
       </div>
 
+      {/* Recycling Centers */}
+      <div className="glass-panel stat-card" onClick={() => setActiveTab('map')} style={{ gridColumn: 'span 4', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="stat-icon orange"><MapPin size={28} /></div>
+        <div className="stat-info">
+          <h3 style={{ color: 'white', fontSize: '1.1rem', marginBottom: '0.25rem' }}>Recycling Centers</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Find nearby centers.</p>
+        </div>
+      </div>
+
     </div>
   );
 };
 
+const WasteSegregation = ({ setActiveTab, setEcoPoints }) => (
+  <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
+    <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}><BookOpen color="var(--primary)" /> Waste Segregation & Info</h2>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+      <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
+        <h3 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Segregation Guidelines</h3>
+        <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--success)' }}></div> <strong>Wet Waste:</strong> Food scraps, organic matter.</li>
+          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--secondary)' }}></div> <strong>Dry Waste:</strong> Paper, clean plastic, glass.</li>
+          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--danger)' }}></div> <strong>Hazardous:</strong> Batteries, e-waste, chemicals.</li>
+          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--warning)' }}></div> <strong>Recyclable:</strong> Metals, clean cardboard.</li>
+        </ul>
+      </div>
+      <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
+        <h3 style={{ marginBottom: '1rem', color: 'var(--warning)' }}>Awareness & Quizzes</h3>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Take the daily quiz to improve your knowledge and earn bonus points!</p>
+        <button className="btn-primary" onClick={() => { alert('Quiz Started! Correct Answer! +10 Pts'); setEcoPoints(p => p + 10); }} style={{ width: '100%', marginBottom: '1rem' }}><Award size={18} /> Start Daily Quiz (+10 Pts)</button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', cursor: 'pointer' }}>
+          <PlayCircle size={16} /> <span>Watch: How to compost at home</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const CommunityImpact = ({ userProfile }) => (
+  <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
+    <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}><Users color="var(--primary)" /> Community & Impact</h2>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+      <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)' }}>
+        <h3 style={{ marginBottom: '1rem', color: 'var(--success)' }}>Your Impact Tracker</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Waste Recycled:</span> <strong>45 kg</strong></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>CO₂ Saved:</span> <strong>12 kg</strong></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Trees Saved:</span> <strong>0.5</strong></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Current Streak:</span> <strong style={{ color: 'var(--warning)' }}>5 Days 🔥</strong></div>
+        </div>
+        <button className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', background: 'var(--primary)' }}><Send size={16} /> Share on Social Media</button>
+      </div>
+      <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
+        <h3 style={{ marginBottom: '1rem' }}>Local Events & Challenges</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+            <h4 style={{ color: 'var(--primary)', marginBottom: '0.3rem' }}>Plastic-Free Week</h4>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Join 450 neighbors in reducing plastic waste.</p>
+            <button className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>Join Challenge</button>
+          </div>
+          <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+            <h4 style={{ color: 'var(--warning)', marginBottom: '0.3rem' }}>Downtown Clean-up</h4>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>This Saturday, 10 AM. Earn 200 Pts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const RewardsGamification = ({ userProfile, ecoPoints }) => (
   <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
-    <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Rewards & Gamification</h2>
+    <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}><Gift color="var(--primary)" /> Rewards & Gamification</h2>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
       <div>
         <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Redeem Rewards</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
           <button className="btn-primary" style={{ background: 'rgba(255,255,255,0.05)', color: 'white', justifyContent: 'space-between' }}><span>50% Transit Pass</span> <span style={{ color: 'var(--primary)' }}>-1000 Pts</span></button>
           <button className="btn-primary" style={{ background: 'rgba(255,255,255,0.05)', color: 'white', justifyContent: 'space-between' }}><span>Eco-Friendly Grocery Kit</span> <span style={{ color: 'var(--primary)' }}>-2500 Pts</span></button>
+        </div>
+        <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Badges & Achievements</h3>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', border: '2px solid var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--success)' }} title="Green Champion"><Award size={30} /></div>
+          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.2)', border: '2px solid var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--secondary)' }} title="Plastic Warrior"><ShieldCheck size={30} /></div>
+          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.2)', border: '2px solid var(--warning)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--warning)' }} title="Zero Waste Master"><Star size={30} /></div>
         </div>
       </div>
       <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)' }}>
@@ -204,19 +281,55 @@ const MapLocator = () => (
   </div>
 );
 
-const PickupScheduling = ({ setActiveTab, setNotifications }) => (
-  <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
-    <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Schedule a Pickup</h2>
-    <div style={{ maxWidth: '500px' }}>
-      <div className="input-group" style={{ marginBottom: '1rem' }}><label>Waste Type</label><select><option>Bulk E-Waste</option><option>Mixed Recyclables</option></select></div>
-      <div className="input-group" style={{ marginBottom: '1rem' }}><label>Schedule Date</label><input type="datetime-local" /></div>
-      <button className="btn-primary" style={{ width: '100%', marginTop: '1rem' }} onClick={() => {
-        setNotifications(n => [{ id: Date.now(), text: "Pickup Request Sent!", time: "Just now", unread: true }, ...n]);
-        setActiveTab('dashboard');
-      }}>Submit Request</button>
+const PickupScheduling = ({ setActiveTab, setNotifications }) => {
+  const [step, setStep] = useState('request'); // request, tracking, rating
+
+  return (
+    <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
+      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}><Truck color="var(--primary)" /> Recycling Pickup Scheduling</h2>
+      
+      {step === 'request' && (
+        <div style={{ maxWidth: '500px' }}>
+          <div className="input-group" style={{ marginBottom: '1rem' }}><label>Waste Type</label><select><option>Bulk E-Waste</option><option>Mixed Recyclables</option><option>Furniture</option></select></div>
+          <div className="input-group" style={{ marginBottom: '1rem' }}><label>Schedule Date & Time</label><input type="datetime-local" /></div>
+          <div className="input-group" style={{ marginBottom: '1rem' }}><label>Additional Details / Images</label><input type="text" placeholder="e.g., Heavy items, call upon arrival" /></div>
+          <button className="btn-primary" style={{ width: '100%', marginTop: '1rem' }} onClick={() => {
+            setNotifications(n => [{ id: Date.now(), text: "System assigned nearest collector: John D.", time: "Just now", unread: true }, ...n]);
+            setStep('tracking');
+          }}>Request Pickup</button>
+        </div>
+      )}
+
+      {step === 'tracking' && (
+        <div style={{ maxWidth: '500px', textAlign: 'center' }}>
+          <div style={{ padding: '2rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid var(--success)' }}>
+            <h3 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>Pickup Confirmed & Tracking</h3>
+            <p style={{ marginBottom: '1rem' }}>Collector <strong>John D.</strong> is on the way.</p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', alignItems: 'center' }}>
+              <div style={{ width: '15px', height: '15px', background: 'var(--success)', borderRadius: '50%', animation: 'pulse 1s infinite' }}></div>
+              <span>Live Status: 5 mins away</span>
+            </div>
+          </div>
+          <button className="btn-primary" onClick={() => setStep('rating')}>Simulate Completion</button>
+        </div>
+      )}
+
+      {step === 'rating' && (
+        <div style={{ maxWidth: '500px', textAlign: 'center' }}>
+          <h3 style={{ marginBottom: '1rem' }}>Rate the Service</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>How was your pickup experience?</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            {[1, 2, 3, 4, 5].map(star => <Star key={star} size={32} color="var(--warning)" style={{ cursor: 'pointer' }} />)}
+          </div>
+          <button className="btn-primary" onClick={() => {
+            setNotifications(n => [{ id: Date.now(), text: "Earned 50 points for pickup feedback!", time: "Just now", unread: true }, ...n]);
+            setActiveTab('dashboard');
+          }}>Submit Feedback</button>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const RecyclerDashboard = ({ userProfile, setActiveTab }) => (
   <div className="dashboard-grid animate-fade-in" style={{ gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem' }}>
@@ -520,7 +633,15 @@ function App() {
   };
 
   const roleNavLinks = {
-    Citizen: [{ id: 'dashboard', label: 'Home' }, { id: 'scanning', label: 'Scan Waste' }, { id: 'chat', label: 'EcoBot AI' }, { id: 'rewards', label: 'Rewards' }, { id: 'pickup', label: 'Pickups' }],
+    Citizen: [
+      { id: 'dashboard', label: 'Home' }, 
+      { id: 'scanning', label: 'Scan Waste' }, 
+      { id: 'segregation', label: 'Learn & Segregate' }, 
+      { id: 'rewards', label: 'Rewards' }, 
+      { id: 'pickup', label: 'Pickups' },
+      { id: 'community', label: 'Impact' },
+      { id: 'chat', label: 'EcoBot AI' }
+    ],
     Recycler: [{ id: 'dashboard', label: 'Overview' }, { id: 'pickups', label: 'Active Pickups' }, { id: 'earnings', label: 'Earnings' }, { id: 'chat', label: 'EcoBot AI' }],
     NGO: [{ id: 'dashboard', label: 'Overview' }, { id: 'campaigns', label: 'Campaigns' }, { id: 'volunteers', label: 'Volunteers' }, { id: 'chat', label: 'EcoBot AI' }],
     Admin: [{ id: 'dashboard', label: 'Overview' }, { id: 'fleet', label: 'Fleet Management' }, { id: 'analytics', label: 'Analytics' }]
@@ -563,8 +684,10 @@ function App() {
         if (activeTab === 'chat') return <AIChatAssistant />;
         if (activeTab === 'dashboard') return <CitizenDashboard setActiveTab={setActiveTab} ecoPoints={ecoPoints} userProfile={userProfile} />;
         if (activeTab === 'scanning') return <WasteScanning setActiveTab={setActiveTab} setEcoPoints={setEcoPoints} setNotifications={setNotifications} />;
+        if (activeTab === 'segregation') return <WasteSegregation setActiveTab={setActiveTab} setEcoPoints={setEcoPoints} />;
         if (activeTab === 'rewards') return <RewardsGamification userProfile={userProfile} ecoPoints={ecoPoints} />;
         if (activeTab === 'pickup') return <PickupScheduling setActiveTab={setActiveTab} setNotifications={setNotifications} />;
+        if (activeTab === 'community') return <CommunityImpact userProfile={userProfile} />;
         if (activeTab === 'map') return <MapLocator />;
         return <CitizenDashboard setActiveTab={setActiveTab} ecoPoints={ecoPoints} userProfile={userProfile} />;
       case 'Recycler':
