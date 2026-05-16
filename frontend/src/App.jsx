@@ -922,12 +922,19 @@ function App() {
   const [notifications, setNotifications] = useState([{ id: 1, text: "Welcome to EcoSmart City Platform!", time: "Just now", unread: true }]);
   const [ecoPoints, setEcoPoints] = useState(1250);
   const [adminStats, setAdminStats] = useState([{ zone: 'North', val: 45 }, { zone: 'South', val: 62 }, { zone: 'East', val: 30 }]);
-  const [pickups, setPickups] = useState([
+  const defaultPickups = [
     { id: 'PK-101', type: 'Bulk E-Waste', address: 'Mahalakshmi Temple, Kolhapur, Maharashtra', points: 50, time: '10:00 AM - 11:30 AM' },
     { id: 'PK-102', type: 'Industrial Scrap', address: 'Rankala Lake, Kolhapur, Maharashtra', points: 100, time: '01:00 PM - 02:30 PM' },
     { id: 'PK-103', type: 'Mixed Recycling', address: 'Shivaji University, Kolhapur, Maharashtra', points: 30, time: '04:00 PM - 05:30 PM' }
-  ]);
-  const [completedPickups, setCompletedPickups] = useState([]);
+  ];
+  const [pickups, setPickups] = useState(() => {
+    try { const saved = localStorage.getItem('ecosmart_pickups'); return saved ? JSON.parse(saved) : defaultPickups; }
+    catch { return defaultPickups; }
+  });
+  const [completedPickups, setCompletedPickups] = useState(() => {
+    try { const saved = localStorage.getItem('ecosmart_completed'); return saved ? JSON.parse(saved) : []; }
+    catch { return []; }
+  });
   const [campaigns, setCampaigns] = useState([
     { id: 1, title: 'Plastic-Free Week', description: 'Join 450 neighbors in reducing plastic waste.', goal: 1000, collected: 750, participants: 450, status: 'active', color: 'var(--primary)' },
     { id: 2, title: 'Downtown Clean-up', description: 'This Saturday, 10 AM. Help the community.', goal: 500, collected: 200, participants: 85, status: 'active', color: 'var(--warning)' }
@@ -945,6 +952,24 @@ function App() {
     { id: 'TRK-04', zone: 'West', status: 'idle', driver: 'Deepak R.', capacity: 30 }
   ]);
   const ecoLevel = ecoPoints > 1500 ? "Zero Waste Master" : ecoPoints > 500 ? "Green Champion" : "Beginner";
+
+  // Persist pickups & completedPickups to localStorage for cross-tab sync
+  useEffect(() => { localStorage.setItem('ecosmart_pickups', JSON.stringify(pickups)); }, [pickups]);
+  useEffect(() => { localStorage.setItem('ecosmart_completed', JSON.stringify(completedPickups)); }, [completedPickups]);
+
+  // Listen for changes from other browser tabs
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'ecosmart_pickups' && e.newValue) {
+        try { setPickups(JSON.parse(e.newValue)); } catch {}
+      }
+      if (e.key === 'ecosmart_completed' && e.newValue) {
+        try { setCompletedPickups(JSON.parse(e.newValue)); } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   useEffect(() => {
     // Handle back button / history pop
