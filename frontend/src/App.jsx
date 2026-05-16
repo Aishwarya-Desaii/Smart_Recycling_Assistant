@@ -348,6 +348,44 @@ const MapLocator = () => {
   );
 };
 
+const TruckSchedule = () => (
+  <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
+    <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <Truck color="var(--primary)" /> Mobile Collection Trucks
+    </h2>
+    <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+      Find the scheduled mobile pickup trucks in your area today. Go to these locations to throw your trash directly into the collection vehicle.
+    </p>
+
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+      {[
+        { id: 'TRK-01', location: 'Mahalakshmi Temple, Kolhapur', time: '10:00 AM - 11:30 AM', accepts: 'General Waste, Plastics' },
+        { id: 'TRK-02', location: 'Rankala Lake, Kolhapur', time: '01:00 PM - 02:30 PM', accepts: 'E-Waste, Batteries' },
+        { id: 'TRK-03', location: 'Shivaji University, Kolhapur', time: '04:00 PM - 05:30 PM', accepts: 'Cardboard, Paper, Metals' }
+      ].map((truck, i) => (
+        <div key={i} className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-card)', borderLeft: '4px solid var(--primary)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.3rem', color: 'var(--text-main)' }}>{truck.id}</h3>
+            <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.2)', padding: '2px 8px', borderRadius: '12px', color: 'var(--success)', fontWeight: 'bold' }}>Active Today</span>
+          </div>
+          <p style={{ color: 'var(--text-main)', fontWeight: 'bold', fontSize: '0.95rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <MapPin size={16} color="var(--primary)" /> {truck.location}
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Accepts: {truck.accepts}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Calendar size={14} /> {truck.time}
+            </span>
+            <button className="btn-primary" onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(truck.location)}`, '_blank')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--primary)' }}>
+              <Navigation size={14} style={{ display: 'inline', marginRight: '0.2rem' }} /> Go Here
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const RecyclerDashboard = ({ userProfile, setActiveTab }) => (
   <div className="dashboard-grid animate-fade-in" style={{ gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem' }}>
     {/* Welcome Hero */}
@@ -611,6 +649,7 @@ function App() {
       { id: 'rewards', label: 'Rewards' }, 
       { id: 'community', label: 'Impact' },
       { id: 'map', label: 'Locate' },
+      { id: 'trucks', label: 'Trucks' },
       { id: 'chat', label: 'EcoBot AI' }
     ],
     Recycler: [{ id: 'dashboard', label: 'Overview' }, { id: 'pickups', label: 'Active Pickups' }, { id: 'earnings', label: 'Earnings' }, { id: 'chat', label: 'EcoBot AI' }],
@@ -659,6 +698,7 @@ function App() {
         if (activeTab === 'rewards') return <RewardsGamification userProfile={userProfile} ecoPoints={ecoPoints} />;
         if (activeTab === 'community') return <CommunityImpact userProfile={userProfile} />;
         if (activeTab === 'map') return <MapLocator />;
+        if (activeTab === 'trucks') return <TruckSchedule />;
         return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} userProfile={userProfile} />;
       case 'Recycler':
         if (activeTab === 'chat') return <AIChatAssistant />;

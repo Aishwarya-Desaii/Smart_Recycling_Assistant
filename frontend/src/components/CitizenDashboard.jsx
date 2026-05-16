@@ -67,7 +67,7 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
       </div>
 
       {/* Recycling Centers */}
-      <div className="glass-panel stat-card" onClick={() => setActiveTab('map')} style={{ gridColumn: 'span 6', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div className="glass-panel stat-card" onClick={() => setActiveTab('map')} style={{ gridColumn: 'span 4', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <div className="stat-icon orange"><MapPin size={28} /></div>
         <div className="stat-info">
           <h3 style={{ color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '0.25rem' }}>Recycling Centers</h3>
@@ -75,8 +75,17 @@ const CitizenDashboard = ({ userProfile, setActiveTab, ecoPoints }) => {
         </div>
       </div>
 
+      {/* Mobile Truck Pickups */}
+      <div className="glass-panel stat-card" onClick={() => setActiveTab('trucks')} style={{ gridColumn: 'span 4', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="stat-icon green"><Truck size={28} /></div>
+        <div className="stat-info">
+          <h3 style={{ color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '0.25rem' }}>Truck Schedule</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Find mobile drop-offs.</p>
+        </div>
+      </div>
+
       {/* AI Voice Assistant */}
-      <div className="glass-panel stat-card" onClick={() => setActiveTab('chat')} style={{ gridColumn: 'span 6', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', background: voiceState === 'listening' ? 'rgba(239, 68, 68, 0.1)' : voiceState === 'speaking' ? 'rgba(59, 130, 246, 0.1)' : 'var(--glass-bg)', border: voiceState !== 'idle' ? '1px solid var(--primary)' : '1px solid var(--glass-border)', transition: 'all 0.3s ease' }}>
+      <div className="glass-panel stat-card" onClick={() => setActiveTab('chat')} style={{ gridColumn: 'span 4', cursor: 'pointer', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', background: voiceState === 'listening' ? 'rgba(239, 68, 68, 0.1)' : voiceState === 'speaking' ? 'rgba(59, 130, 246, 0.1)' : 'var(--glass-bg)', border: voiceState !== 'idle' ? '1px solid var(--primary)' : '1px solid var(--glass-border)', transition: 'all 0.3s ease' }}>
         <div className="stat-icon" onClick={handleVoiceClick} style={{ background: voiceState === 'idle' ? 'rgba(16, 185, 129, 0.2)' : voiceState === 'listening' ? 'var(--danger)' : 'var(--primary)', color: voiceState === 'idle' ? 'var(--primary)' : 'white', animation: voiceState === 'listening' ? 'pulse 1s infinite' : 'none' }}>
           {voiceState === 'speaking' ? <Activity size={24} /> : <Mic size={24} />}
         </div>
