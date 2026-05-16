@@ -1,0 +1,25 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Datasets (too large for git)
+data/
+
+# Model weights (too large for git)
+model/weights/*.pt
+model/weights/*.onnx
+runs/
+
+# Logs
+logs/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
