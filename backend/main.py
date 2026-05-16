@@ -115,6 +115,7 @@ def login_user(req: LoginRequest, db: Session = Depends(get_db)):
 class ScanImpactRequest(BaseModel):
     items_count: int
     points_earned: int
+    class_counts: dict = {}
 
 @app.post("/users/{user_id}/scan_impact")
 def update_scan_impact(user_id: int, req: ScanImpactRequest, db: Session = Depends(get_db)):
@@ -122,13 +123,39 @@ def update_scan_impact(user_id: int, req: ScanImpactRequest, db: Session = Depen
     if not user:
         raise HTTPException(404, "User not found")
         
-    # Impact Factory calculation
-    # Average 1 item = 0.5 kg of waste
-    # 1 kg of waste recycled = 2.5 kg of CO2 saved
-    # 21 kg of CO2 saved = 1 tree equivalent
+    # Impact Factory calculation with appropriate weights
+    CLASS_WEIGHTS = {
+        "plastic": 0.2,   # kg per item
+        "paper": 0.1,     # kg per item
+        "glass": 0.5,     # kg per item
+        "metal": 0.3,     # kg per item
+        "organic": 0.4,   # kg per item
+        "e-waste": 1.0,   # kg per item
+    }
+    CLASS_CO2_MULTIPLIER = {
+        "plastic": 3.0,   # kg CO2 saved per kg of waste
+        "paper": 1.5,
+        "glass": 0.3,
+        "metal": 4.0,
+        "organic": 0.1,
+        "e-waste": 2.5,
+    }
     
-    waste_kg = req.items_count * 0.5
-    co2_saved = waste_kg * 2.5
+    waste_kg = 0.0
+    co2_saved = 0.0
+
+    if req.class_counts:
+        for cls, count in req.class_counts.items():
+            w = CLASS_WEIGHTS.get(cls.lower(), 0.5)
+            c2_mult = CLASS_CO2_MULTIPLIER.get(cls.lower(), 2.5)
+            item_waste = w * count
+            waste_kg += item_waste
+            co2_saved += item_waste * c2_mult
+    else:
+        waste_kg = req.items_count * 0.5
+        co2_saved = waste_kg * 2.5
+
+    # 21 kg of CO2 saved = 1 tree equivalent
     trees_saved = co2_saved / 21.0
     
     # Update user stats

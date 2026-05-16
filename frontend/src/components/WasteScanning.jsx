@@ -87,7 +87,8 @@ const WasteScanning = ({ setActiveTab, setEcoPoints, setNotifications, userProfi
             bin: binText,
             points: summary.total_reward_points || 10,
             image: data.annotated_image,
-            items_count: summary.total_items || 1
+            items_count: summary.total_items || 1,
+            class_counts: summary.class_counts
           };
         }
       } else if (type === 'upload' && data.predicted_class) {
@@ -99,7 +100,8 @@ const WasteScanning = ({ setActiveTab, setEcoPoints, setNotifications, userProfi
           category: data.predicted_class,
           bin: data.guidance.bin_color + ' Bin',
           points: data.guidance.reward_points || 10,
-          items_count: 1
+          items_count: 1,
+          class_counts: { [data.predicted_class]: 1 }
         };
       } else {
          throw new Error('No items detected');
@@ -177,7 +179,7 @@ const WasteScanning = ({ setActiveTab, setEcoPoints, setNotifications, userProfi
                  const res = await fetch(`http://localhost:8000/users/${userProfile.id}/scan_impact`, {
                    method: "POST",
                    headers: { "Content-Type": "application/json" },
-                   body: JSON.stringify({ items_count: scanResult.items_count || 1, points_earned: scanResult.points })
+                   body: JSON.stringify({ items_count: scanResult.items_count || 1, points_earned: scanResult.points, class_counts: scanResult.class_counts || {} })
                  });
                  if (res.ok) {
                    const updated = await res.json();
