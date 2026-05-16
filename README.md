@@ -1,16 +1,85 @@
-# React + Vite
+# 🌿 Smart Recycling AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AI-powered waste classification and segmentation system with a FastAPI backend.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+Waste Managment/
+├── config/config.yaml              # All hyperparameters & paths
+├── data/                           # Datasets (auto-downloaded)
+│   ├── raw/                        #   TrashNet raw images
+│   ├── processed/                  #   Split into train/val/test
+│   └── taco/                       #   TACO segmentation dataset
+├── model/
+│   ├── weights/                    #   Trained model weights
+│   ├── training/                   #   Classification training
+│   │   ├── augmentations.py        #     Albumentations pipelines
+│   │   ├── dataset.py              #     PyTorch Dataset + DataLoader
+│   │   └── train.py                #     EfficientNet-B2 training loop
+│   ├── inference/                  #   Prediction modules
+│   │   ├── labels.py               #     Class → guidance mapping
+│   │   ├── predictor.py            #     Single-item classifier
+│   │   └── seg_predictor.py        #     Multi-item segmenter
+│   └── segmentation/               #   YOLOv8-seg training
+│       ├── train_seg.py            #     YOLO training script
+│       └── export_onnx.py          #     ONNX export for deployment
+├── scripts/                        # Data preparation
+│   ├── download_data.py            #   Download TrashNet from Kaggle
+│   ├── prepare_dataset.py          #   Map labels & split dataset
+│   └── prepare_taco_yolo.py        #   Download & prepare TACO
+├── tests/                          # Test scripts for the API
+│   ├── test_api.py                 #   Test /classify endpoint
+│   ├── test_segmentation.py        #   Test /segment endpoint
+│   └── visualize_results.py        #   Generate HTML report
+├── train_colab.ipynb               # Colab notebook for EfficientNet
+├── train_seg_colab.ipynb           # Colab notebook for YOLOv8
+├── main.py                         # FastAPI server
+├── requirements.txt                # Python dependencies
+└── .gitignore
+```
 
-## React Compiler
+## Two Models, One API
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Model | Endpoint | Purpose |
+|---|---|---|
+| EfficientNet-B2 | `POST /classify` | Single clean item → class + confidence |
+| YOLOv8m-seg | `POST /segment` | Mixed photo → per-item masks + guidance |
 
-## Expanding the ESLint configuration
+## Quick Start
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# 1. Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Download & prepare datasets
+python scripts/download_data.py
+python scripts/prepare_dataset.py
+python scripts/prepare_taco_yolo.py
+
+# 4. Train classification model
+python model/training/train.py
+
+# 5. Train segmentation model
+python model/segmentation/train_seg.py
+
+# 6. Run the API server
+python main.py
+```
+
+API docs available at: **http://localhost:8000/docs**
+
+## Waste Classes
+
+| Class | Bin Color | Reward Points |
+|---|---|---|
+| Plastic | 🟡 Yellow | 10 |
+| Paper | 🔵 Blue | 8 |
+| Glass | 🟢 Green | 12 |
+| Metal | ⚫ Grey | 15 |
+| Organic | 🟤 Brown | 5 |
+| E-Waste | 🔴 Red | 25 |

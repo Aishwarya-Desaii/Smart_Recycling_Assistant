@@ -1,0 +1,84 @@
+# config/config.yaml
+# ─────────────────────────────────────────────
+# Central config — all paths & hyperparams here
+# ─────────────────────────────────────────────
+
+project:
+  name: "smart-recycling-ai"
+  version: "1.0.0"
+
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  augmented_data: "data/augmented"
+  weights_dir: "model/weights"
+  best_model: "model/weights/best.pt"
+  logs: "logs/"
+
+dataset:
+  classes:
+    - plastic
+    - paper
+    - glass
+    - metal
+    - organic
+    - e-waste
+  num_classes: 6
+  image_size: 224          # resize to 224x224
+  train_split: 0.75
+  val_split: 0.15
+  test_split: 0.10
+  random_seed: 42
+
+training:
+  model_name: "efficientnet_b2"   # lightweight, accurate, mobile-friendly
+  epochs: 20
+  batch_size: 8
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  scheduler: "cosine"             # cosine annealing LR scheduler
+  patience: 5                     # early stopping patience
+  num_workers: 4
+  device: "cuda"                  # "cpu" if no GPU
+
+augmentation:
+  horizontal_flip: true
+  vertical_flip: false
+  rotation_limit: 30
+  brightness_contrast: true
+  hue_saturation: true
+  blur: true
+  normalize:
+    mean: [0.485, 0.456, 0.406]   # ImageNet stats
+    std: [0.229, 0.224, 0.225]
+
+inference:
+  confidence_threshold: 0.6
+  top_k: 3                        # return top-3 predictions
+
+segmentation:
+  model: "yolov8m-seg"            # yolov8n-seg (fastest) | yolov8m-seg (balanced) | yolov8l-seg (best)
+  weights_dir: "model/weights"
+  yolo_weights: "model/weights/yolov8_waste_seg.pt"
+  pretrained_base: "yolov8m-seg.pt"   # downloaded automatically by ultralytics
+  image_size: 640                 # YOLO standard input size
+  confidence_threshold: 0.20     # Lowered to 0.20 to detect more objects in messy scenes
+  iou_threshold: 0.45            # NMS IoU threshold (suppress overlapping boxes)
+  max_detections: 20             # max items per image
+  epochs: 50
+  batch_size: 8                  # segmentation is memory-heavy; reduce if OOM
+  device: "cuda"
+
+  # TACO dataset (real-world multi-item waste photos — ideal for segmentation)
+  taco_data_yaml: "data/taco/data.yaml"
+
+  # Visual output settings
+  mask_alpha: 0.45               # mask transparency on annotated image
+  # One distinct color per class (BGR format for OpenCV)
+  class_colors:
+    plastic:  [0,   200, 255]    # yellow-ish
+    paper:    [255, 150,  50]    # blue-ish
+    glass:    [50,  220,  80]    # green
+    metal:    [160, 160, 160]    # grey
+    organic:  [30,  100, 200]    # brown-ish
+    e-waste:  [50,   50, 220]    # red
