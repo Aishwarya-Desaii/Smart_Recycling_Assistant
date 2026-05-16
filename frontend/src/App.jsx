@@ -1082,14 +1082,14 @@ function App() {
     switch (userProfile.role) {
       case 'Citizen':
         if (activeTab === 'chat') return <AIChatAssistant />;
-        if (activeTab === 'dashboard') return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} userProfile={userProfile} />;
+        if (activeTab === 'dashboard') return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} setEcoPoints={setEcoPoints} userProfile={userProfile} />;
         if (activeTab === 'scanning') return <WasteScanning setActiveTab={changeTab} setEcoPoints={setEcoPoints} setNotifications={setNotifications} userProfile={userProfile} setUserProfile={setUserProfile} />;
         if (activeTab === 'segregation') return <WasteSegregation userProfile={userProfile} setEcoPoints={setEcoPoints} />;
         if (activeTab === 'rewards') return <RewardsGamification userProfile={userProfile} ecoPoints={ecoPoints} />;
         if (activeTab === 'community') return <CommunityImpact userProfile={userProfile} />;
         if (activeTab === 'map') return <MapLocator />;
         if (activeTab === 'trucks') return <TruckSchedule pickups={pickups} />;
-        return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} userProfile={userProfile} />;
+        return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} setEcoPoints={setEcoPoints} userProfile={userProfile} />;
       case 'Recycler':
         if (activeTab === 'chat') return <AIChatAssistant />;
         if (activeTab === 'dashboard') return <RecyclerDashboard userProfile={userProfile} setActiveTab={setActiveTab} ecoPoints={ecoPoints} pickups={pickups} />;
@@ -1107,7 +1107,7 @@ function App() {
         if (activeTab === 'fleet') return <AdminFleet fleetTrucks={fleetTrucks} setFleetTrucks={setFleetTrucks} pickups={pickups} />;
         if (activeTab === 'analytics') return <AdminAnalytics adminStats={adminStats} pickups={pickups} completedPickups={completedPickups} fleetTrucks={fleetTrucks} />;
         return <AdminDashboard adminStats={adminStats} setActiveTab={changeTab} />;
-      default: return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} userProfile={userProfile} />;
+      default: return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} setEcoPoints={setEcoPoints} userProfile={userProfile} />;
     }
   };
 
