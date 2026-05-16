@@ -9,8 +9,8 @@ import PickupScheduling from './components/PickupScheduling';
 
 const WasteSegregation = ({ userProfile, setEcoPoints }) => {
   const [guidelines, setGuidelines] = useState([]);
-  const [quiz, setQuiz] = useState(null);
-  const [quizAnswer, setQuizAnswer] = useState('');
+  const [quiz, setQuiz] = useState([]);
+  const [quizAnswers, setQuizAnswers] = useState({});
   const [quizFeedback, setQuizFeedback] = useState(null);
 
   useEffect(() => {
@@ -26,19 +26,17 @@ const WasteSegregation = ({ userProfile, setEcoPoints }) => {
   }, []);
 
   const handleQuizSubmit = async () => {
-    if (!quizAnswer || !quiz || !userProfile?.id) return;
+    if (Object.keys(quizAnswers).length !== quiz.length || !userProfile?.id) return;
     try {
       const res = await fetch('http://localhost:8000/educational/quiz/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userProfile.id, quiz_id: quiz.id, answer: quizAnswer })
+        body: JSON.stringify({ user_id: userProfile.id, answers: quizAnswers })
       });
       const data = await res.json();
-      if (data.correct) {
-        setQuizFeedback(`Correct! You earned ${data.points_awarded} EcoPoints!`);
+      setQuizFeedback(`You scored ${data.score}/${data.total}! You earned ${data.points_awarded} EcoPoints!`);
+      if (data.points_awarded > 0) {
         setEcoPoints(data.new_total);
-      } else {
-        setQuizFeedback("Incorrect. Try again tomorrow!");
       }
     } catch (e) {
       console.error(e);
@@ -64,23 +62,27 @@ const WasteSegregation = ({ userProfile, setEcoPoints }) => {
           <h3 style={{ marginBottom: '1rem', color: 'var(--warning)' }}>Awareness & Quizzes</h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Take the daily quiz to improve your knowledge and earn bonus points!</p>
           
-          {quiz && !quizFeedback ? (
-            <div style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-              <p style={{ fontWeight: 'bold', marginBottom: '1rem' }}>{quiz.question}</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {quiz.options.map((opt, i) => (
-                  <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input type="radio" name="quiz" value={opt} onChange={(e) => setQuizAnswer(e.target.value)} />
-                    {opt}
-                  </label>
-                ))}
-              </div>
-              <button className="btn-primary" onClick={handleQuizSubmit} style={{ width: '100%', marginTop: '1rem' }} disabled={!quizAnswer}>
-                <Award size={18} /> Submit Answer
+          {quiz.length > 0 && !quizFeedback ? (
+            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {quiz.map((q, idx) => (
+                <div key={q.id}>
+                  <p style={{ fontWeight: 'bold', marginBottom: '0.8rem' }}>{idx + 1}. {q.question}</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {q.options.map((opt, i) => (
+                      <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <input type="radio" name={`quiz_${q.id}`} value={opt} onChange={(e) => setQuizAnswers(prev => ({ ...prev, [q.id]: e.target.value }))} />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <button className="btn-primary" onClick={handleQuizSubmit} style={{ width: '100%', marginTop: '0.5rem' }} disabled={Object.keys(quizAnswers).length !== quiz.length}>
+                <Award size={18} /> Submit Answers
               </button>
             </div>
           ) : quizFeedback ? (
-            <div style={{ padding: '1rem', background: quizFeedback.includes('Correct') ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', borderRadius: '8px', color: quizFeedback.includes('Correct') ? 'var(--success)' : 'var(--danger)', marginBottom: '1rem', fontWeight: 'bold', textAlign: 'center' }}>
+            <div style={{ padding: '1.5rem', background: quizFeedback.includes('earned 0') ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)', borderRadius: '12px', color: quizFeedback.includes('earned 0') ? 'var(--danger)' : 'var(--success)', marginBottom: '1rem', fontWeight: 'bold', textAlign: 'center', fontSize: '1.1rem' }}>
               {quizFeedback}
             </div>
           ) : <p>Loading quiz...</p>}

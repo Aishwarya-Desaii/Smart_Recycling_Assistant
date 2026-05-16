@@ -169,8 +169,7 @@ def get_user_history(user_id: int, db: Session = Depends(get_db)):
 
 class QuizSubmit(BaseModel):
     user_id: int
-    quiz_id: int
-    answer: str
+    answers: dict
 
 @app.get("/educational/guidelines")
 def get_guidelines():
@@ -183,26 +182,48 @@ def get_guidelines():
 
 @app.get("/educational/quiz/daily")
 def get_daily_quiz():
-    return {
-        "id": 1,
-        "question": "Which of these items should NEVER be placed in a standard recycling bin?",
-        "options": ["A clean cardboard box", "A greasy pizza box", "An empty plastic water bottle", "A clean glass jar"]
-    }
+    return [
+        {
+            "id": 1,
+            "question": "Which of these items should NEVER be placed in a standard recycling bin?",
+            "options": ["A clean cardboard box", "A greasy pizza box", "An empty plastic water bottle", "A clean glass jar"]
+        },
+        {
+            "id": 2,
+            "question": "How should you dispose of old alkaline batteries?",
+            "options": ["Throw them in the regular trash", "Put them in the recycling bin", "Take them to a hazardous e-waste facility", "Compost them"]
+        },
+        {
+            "id": 3,
+            "question": "What is the correct way to recycle plastic food containers?",
+            "options": ["Rinse them out before recycling", "Leave the food in them", "Put them in the compost bin", "Crush them and throw in regular trash"]
+        }
+    ]
 
 @app.post("/educational/quiz/submit")
 def submit_quiz(req: QuizSubmit, db: Session = Depends(get_db)):
-    correct = False
-    points_awarded = 0
-    if req.quiz_id == 1 and req.answer == "A greasy pizza box":
-        correct = True
-        points_awarded = 10
-        user = db.query(User).filter(User.id == req.user_id).first()
-        if user:
-            user.eco_points += points_awarded
-            db.commit()
-            db.refresh(user)
-            return {"correct": True, "points_awarded": points_awarded, "new_total": user.eco_points}
-    return {"correct": False, "points_awarded": 0}
+    correct_answers = {
+        "1": "A greasy pizza box",
+        "2": "Take them to a hazardous e-waste facility",
+        "3": "Rinse them out before recycling"
+    }
+    
+    score = 0
+    total = len(correct_answers)
+    for q_id, ans in req.answers.items():
+        if str(q_id) in correct_answers and correct_answers[str(q_id)] == ans:
+            score += 1
+            
+    points_awarded = score * 10
+    
+    user = db.query(User).filter(User.id == req.user_id).first()
+    if user and points_awarded > 0:
+        user.eco_points += points_awarded
+        db.commit()
+        db.refresh(user)
+        return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points}
+        
+    return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points if user else 0}
 
 
 @app.post("/classify")
