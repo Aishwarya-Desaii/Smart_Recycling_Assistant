@@ -7,30 +7,92 @@ import CitizenDashboard from './components/CitizenDashboard';
 import AIChatAssistant from './components/AIChatAssistant';
 import PickupScheduling from './components/PickupScheduling';
 
-const WasteSegregation = ({ setActiveTab, setEcoPoints }) => (
-  <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
-    <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}><BookOpen color="var(--primary)" /> Waste Segregation & Info</h2>
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-      <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--glass-border)' }}>
-        <h3 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Segregation Guidelines</h3>
-        <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--success)' }}></div> <strong>Wet Waste:</strong> Food scraps, organic matter.</li>
-          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--secondary)' }}></div> <strong>Dry Waste:</strong> Paper, clean plastic, glass.</li>
-          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--danger)' }}></div> <strong>Hazardous:</strong> Batteries, e-waste, chemicals.</li>
-          <li style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><div style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--warning)' }}></div> <strong>Recyclable:</strong> Metals, clean cardboard.</li>
-        </ul>
-      </div>
-      <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--glass-border)' }}>
-        <h3 style={{ marginBottom: '1rem', color: 'var(--warning)' }}>Awareness & Quizzes</h3>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Take the daily quiz to improve your knowledge and earn bonus points!</p>
-        <button className="btn-primary" onClick={() => { alert('Quiz Started! Correct Answer! +10 Pts'); setEcoPoints(p => p + 10); }} style={{ width: '100%', marginBottom: '1rem' }}><Award size={18} /> Start Daily Quiz (+10 Pts)</button>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', cursor: 'pointer' }}>
-          <PlayCircle size={16} /> <span>Watch: How to compost at home</span>
+const WasteSegregation = ({ userProfile, setEcoPoints }) => {
+  const [guidelines, setGuidelines] = useState([]);
+  const [quiz, setQuiz] = useState(null);
+  const [quizAnswer, setQuizAnswer] = useState('');
+  const [quizFeedback, setQuizFeedback] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/educational/guidelines')
+      .then(res => res.json())
+      .then(data => setGuidelines(data))
+      .catch(e => console.error(e));
+
+    fetch('http://localhost:8000/educational/quiz/daily')
+      .then(res => res.json())
+      .then(data => setQuiz(data))
+      .catch(e => console.error(e));
+  }, []);
+
+  const handleQuizSubmit = async () => {
+    if (!quizAnswer || !quiz || !userProfile?.id) return;
+    try {
+      const res = await fetch('http://localhost:8000/educational/quiz/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userProfile.id, quiz_id: quiz.id, answer: quizAnswer })
+      });
+      const data = await res.json();
+      if (data.correct) {
+        setQuizFeedback(`Correct! You earned ${data.points_awarded} EcoPoints!`);
+        setEcoPoints(data.new_total);
+      } else {
+        setQuizFeedback("Incorrect. Try again tomorrow!");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  return (
+    <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
+      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}><BookOpen color="var(--primary)" /> Waste Segregation & Info</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--glass-border)' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Segregation Guidelines</h3>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {guidelines.length > 0 ? guidelines.map((g, i) => (
+              <li key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ width: '15px', height: '15px', borderRadius: '50%', background: g.color }}></div>
+                <strong>{g.type}:</strong> {g.description}
+              </li>
+            )) : <p>Loading guidelines...</p>}
+          </ul>
+        </div>
+        <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--glass-border)' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--warning)' }}>Awareness & Quizzes</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Take the daily quiz to improve your knowledge and earn bonus points!</p>
+          
+          {quiz && !quizFeedback ? (
+            <div style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+              <p style={{ fontWeight: 'bold', marginBottom: '1rem' }}>{quiz.question}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {quiz.options.map((opt, i) => (
+                  <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="radio" name="quiz" value={opt} onChange={(e) => setQuizAnswer(e.target.value)} />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+              <button className="btn-primary" onClick={handleQuizSubmit} style={{ width: '100%', marginTop: '1rem' }} disabled={!quizAnswer}>
+                <Award size={18} /> Submit Answer
+              </button>
+            </div>
+          ) : quizFeedback ? (
+            <div style={{ padding: '1rem', background: quizFeedback.includes('Correct') ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', borderRadius: '8px', color: quizFeedback.includes('Correct') ? 'var(--success)' : 'var(--danger)', marginBottom: '1rem', fontWeight: 'bold', textAlign: 'center' }}>
+              {quizFeedback}
+            </div>
+          ) : <p>Loading quiz...</p>}
+
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', cursor: 'pointer' }}>
+            <PlayCircle size={16} /> <span>Watch: How to compost at home</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const CommunityImpact = ({ userProfile }) => {
   const [history, setHistory] = useState([]);
@@ -418,7 +480,7 @@ function App() {
         if (activeTab === 'chat') return <AIChatAssistant />;
         if (activeTab === 'dashboard') return <CitizenDashboard setActiveTab={changeTab} ecoPoints={ecoPoints} userProfile={userProfile} />;
         if (activeTab === 'scanning') return <WasteScanning setActiveTab={changeTab} setEcoPoints={setEcoPoints} setNotifications={setNotifications} userProfile={userProfile} setUserProfile={setUserProfile} />;
-        if (activeTab === 'segregation') return <WasteSegregation setActiveTab={changeTab} setEcoPoints={setEcoPoints} />;
+        if (activeTab === 'segregation') return <WasteSegregation userProfile={userProfile} setEcoPoints={setEcoPoints} />;
         if (activeTab === 'rewards') return <RewardsGamification userProfile={userProfile} ecoPoints={ecoPoints} />;
         if (activeTab === 'community') return <CommunityImpact userProfile={userProfile} />;
         if (activeTab === 'map') return <MapLocator />;

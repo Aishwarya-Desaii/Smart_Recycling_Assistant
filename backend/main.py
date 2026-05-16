@@ -167,6 +167,42 @@ def get_user_history(user_id: int, db: Session = Depends(get_db)):
         "co2_saved": round(s.waste_kg * 2.5, 2)
     } for s in scans]
 
+class QuizSubmit(BaseModel):
+    user_id: int
+    quiz_id: int
+    answer: str
+
+@app.get("/educational/guidelines")
+def get_guidelines():
+    return [
+        {"type": "Wet Waste", "color": "var(--success)", "description": "Food scraps, organic matter."},
+        {"type": "Dry Waste", "color": "var(--secondary)", "description": "Paper, clean plastic, glass."},
+        {"type": "Hazardous", "color": "var(--danger)", "description": "Batteries, e-waste, chemicals."},
+        {"type": "Recyclable", "color": "var(--warning)", "description": "Metals, clean cardboard."}
+    ]
+
+@app.get("/educational/quiz/daily")
+def get_daily_quiz():
+    return {
+        "id": 1,
+        "question": "Which of these items should NEVER be placed in a standard recycling bin?",
+        "options": ["A clean cardboard box", "A greasy pizza box", "An empty plastic water bottle", "A clean glass jar"]
+    }
+
+@app.post("/educational/quiz/submit")
+def submit_quiz(req: QuizSubmit, db: Session = Depends(get_db)):
+    correct = False
+    points_awarded = 0
+    if req.quiz_id == 1 and req.answer == "A greasy pizza box":
+        correct = True
+        points_awarded = 10
+        user = db.query(User).filter(User.id == req.user_id).first()
+        if user:
+            user.eco_points += points_awarded
+            db.commit()
+            db.refresh(user)
+            return {"correct": True, "points_awarded": points_awarded, "new_total": user.eco_points}
+    return {"correct": False, "points_awarded": 0}
 
 
 @app.post("/classify")
