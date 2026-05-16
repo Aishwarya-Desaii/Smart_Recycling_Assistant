@@ -53,6 +53,7 @@ async def lifespan(app: FastAPI):
 
     # Segmentation model (YOLOv8-seg)
     try:
+        # pyrefly: ignore [missing-import]
         from seg_predictor import SegPredictor
         segmenter = SegPredictor()
         logger.info("✅ SegPredictor loaded successfully.")
