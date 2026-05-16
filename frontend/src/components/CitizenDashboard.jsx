@@ -107,10 +107,10 @@ const RedeemRewards = ({ ecoPoints, setEcoPoints }) => {
   const maxDiscount = Math.floor(ecoPoints / 100) * rate;
 
   const coupons = [
-    { id: 1, label: 'Grocery Discount', icon: <ShoppingBag size={24} />, cost: 100, discount: 5, color: 'var(--primary)' },
-    { id: 2, label: 'Coffee Voucher', icon: <Coffee size={24} />, cost: 200, discount: 10, color: 'var(--warning)' },
-    { id: 3, label: 'Fuel Cashback', icon: <Fuel size={24} />, cost: 500, discount: 25, color: 'var(--secondary)' },
-    { id: 4, label: 'Mega Discount', icon: <Gift size={24} />, cost: 1000, discount: 50, color: 'rgb(139, 92, 246)' },
+    { id: 1, label: 'Electricity Bill', icon: <Zap size={24} />, cost: 100, discount: 5, color: 'var(--warning)' },
+    { id: 2, label: 'Water Bill', icon: <Activity size={24} />, cost: 200, discount: 10, color: 'rgb(59, 130, 246)' },
+    { id: 3, label: 'Gas Bill', icon: <Fuel size={24} />, cost: 500, discount: 25, color: 'var(--secondary)' },
+    { id: 4, label: 'Property Tax', icon: <Gift size={24} />, cost: 1000, discount: 50, color: 'var(--primary)' },
   ];
 
   const handleRedeem = (coupon) => {

@@ -213,10 +213,10 @@ const RewardsGamification = ({ userProfile, ecoPoints, setEcoPoints }) => {
   };
 
   const coupons = [
-    { id: 1, label: 'Grocery Discount', cost: 100, discount: 5, color: 'var(--primary)' },
-    { id: 2, label: 'Coffee Voucher', cost: 200, discount: 10, color: 'var(--warning)' },
-    { id: 3, label: 'Fuel Cashback', cost: 500, discount: 25, color: 'var(--secondary)' },
-    { id: 4, label: 'Mega Discount', cost: 1000, discount: 50, color: 'rgb(139, 92, 246)' },
+    { id: 1, label: 'Electricity Bill', cost: 100, discount: 5, color: 'var(--warning)' },
+    { id: 2, label: 'Water Bill', cost: 200, discount: 10, color: 'rgb(59, 130, 246)' },
+    { id: 3, label: 'Gas Bill', cost: 500, discount: 25, color: 'var(--secondary)' },
+    { id: 4, label: 'Property Tax', cost: 1000, discount: 50, color: 'var(--primary)' },
   ];
 
   const handleRedeem = (coupon) => {
