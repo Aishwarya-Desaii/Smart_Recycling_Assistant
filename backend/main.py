@@ -219,12 +219,59 @@ def submit_quiz(req: QuizSubmit, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == req.user_id).first()
     if user and points_awarded > 0:
         user.eco_points += points_awarded
+        quiz_record = ScanHistory(user_id=user.id, items_count=0, waste_kg=0.0, points_earned=points_awarded)
+        db.add(quiz_record)
         db.commit()
         db.refresh(user)
         return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points, "correct_answers": correct_answers}
         
     return {"score": score, "total": total, "points_awarded": points_awarded, "new_total": user.eco_points if user else 0, "correct_answers": correct_answers}
 
+@app.get("/gamification/data/{user_id}")
+def get_gamification_data(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
+        
+    # Badges calculation
+    badges = []
+    if user.eco_points >= 10:
+        badges.append({"id": "green_champ", "name": "Green Champion", "color": "var(--success)", "icon": "Award"})
+    if user.total_waste_kg >= 0.5:
+        badges.append({"id": "plastic_warrior", "name": "Waste Warrior", "color": "var(--secondary)", "icon": "ShieldCheck"})
+    if user.eco_points >= 100:
+        badges.append({"id": "zero_waste", "name": "Zero Waste Master", "color": "var(--warning)", "icon": "Star"})
+        
+    # Recent activity
+    history = db.query(ScanHistory).filter(ScanHistory.user_id == user_id).order_by(ScanHistory.timestamp.desc()).limit(5).all()
+    recent_activity = []
+    for h in history:
+        recent_activity.append({
+            "id": h.id,
+            "title": "Daily Quiz (Correct Answers)" if h.items_count == 0 else f"AI Waste Scan ({h.items_count} items)",
+            "points": h.points_earned,
+            "type": "quiz" if h.items_count == 0 else "scan"
+        })
+        
+    # Leaderboard
+    top_users = db.query(User).order_by(User.eco_points.desc()).limit(5).all()
+    leaderboard = []
+    user_in_top = False
+    for i, u in enumerate(top_users):
+        is_current = (u.id == user.id)
+        if is_current: user_in_top = True
+        leaderboard.append({"rank": i + 1, "name": u.name + (" (You)" if is_current else ""), "pts": u.eco_points, "highlight": is_current})
+        
+    if not user_in_top:
+        # Find user's actual rank roughly
+        rank = db.query(User).filter(User.eco_points > user.eco_points).count() + 1
+        leaderboard.append({"rank": rank, "name": user.name + " (You)", "pts": user.eco_points, "highlight": True})
+        
+    return {
+        "badges": badges,
+        "recent_activity": recent_activity,
+        "leaderboard": leaderboard
+    }
 
 @app.post("/classify")
 async def classify_item(file: UploadFile = File(...)):
