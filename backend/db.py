@@ -41,6 +41,18 @@ class ScanHistory(Base):
     
     user = relationship("User")
 
+class Campaign(Base):
+    __tablename__ = "campaigns"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String, default="")
+    goal = Column(Float, default=100.0)
+    collected = Column(Float, default=0.0)
+    participants = Column(Integer, default=0)
+    status = Column(String, default="active")  # active, paused, completed
+    color = Column(String, default="var(--primary)")
+
 # Create tables
 Base.metadata.create_all(bind=engine)
 

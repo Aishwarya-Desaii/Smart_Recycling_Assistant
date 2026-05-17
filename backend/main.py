@@ -12,8 +12,10 @@ Docs: http://localhost:8000/docs
 
 import sys
 import logging
+import random
 from pathlib import Path
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,7 +23,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import uvicorn
 
-from db import get_db, User, ScanHistory
+from db import get_db, User, ScanHistory, Campaign
 
 # ── Setup paths so Python can find our modules ────────────
 ROOT_DIR = Path(__file__).parent
@@ -111,6 +113,25 @@ def login_user(req: LoginRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
     return user
+
+@app.get("/users/{user_id}")
+def get_user_profile(user_id: int, db: Session = Depends(get_db)):
+    """Refresh the latest user profile data from the database."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "role": user.role,
+        "location": user.location,
+        "eco_points": user.eco_points,
+        "total_waste_kg": round(user.total_waste_kg, 2),
+        "total_co2_saved": round(user.total_co2_saved, 2),
+        "trees_saved": round(user.trees_saved, 2),
+        "current_streak": user.current_streak
+    }
 
 class ScanImpactRequest(BaseModel):
     items_count: int
@@ -377,6 +398,234 @@ def join_event(event_id: int):
                 ev["joined"] = True
             return ev
     raise HTTPException(404, "Event not found")
+
+
+# ── Campaign CRUD Endpoints (persisted in DB) ────────────
+
+def _seed_default_campaigns(db: Session):
+    """Seed default campaigns if none exist."""
+    if db.query(Campaign).count() == 0:
+        defaults = [
+            Campaign(title="Plastic-Free Week", description="Join 450 neighbors in reducing plastic waste.", goal=1000, collected=750, participants=450, status="active", color="var(--primary)"),
+            Campaign(title="Downtown Clean-up", description="This Saturday, 10 AM. Help the community.", goal=500, collected=200, participants=85, status="active", color="var(--warning)")
+        ]
+        db.add_all(defaults)
+        db.commit()
+
+class CampaignCreate(BaseModel):
+    title: str
+    description: str
+    goal: float = 100
+
+class CampaignUpdate(BaseModel):
+    collected: float | None = None
+    participants: int | None = None
+    status: str | None = None
+
+@app.get("/campaigns")
+def get_campaigns(db: Session = Depends(get_db)):
+    _seed_default_campaigns(db)
+    campaigns = db.query(Campaign).all()
+    return [{
+        "id": c.id,
+        "title": c.title,
+        "description": c.description,
+        "goal": c.goal,
+        "collected": round(c.collected, 2),
+        "participants": c.participants,
+        "status": c.status,
+        "color": c.color
+    } for c in campaigns]
+
+@app.post("/campaigns")
+def create_campaign(req: CampaignCreate, db: Session = Depends(get_db)):
+    colors = ["var(--primary)", "var(--secondary)", "var(--warning)"]
+    count = db.query(Campaign).count()
+    campaign = Campaign(
+        title=req.title,
+        description=req.description,
+        goal=req.goal,
+        collected=0,
+        participants=0,
+        status="active",
+        color=colors[count % len(colors)]
+    )
+    db.add(campaign)
+    db.commit()
+    db.refresh(campaign)
+    return {
+        "id": campaign.id,
+        "title": campaign.title,
+        "description": campaign.description,
+        "goal": campaign.goal,
+        "collected": campaign.collected,
+        "participants": campaign.participants,
+        "status": campaign.status,
+        "color": campaign.color
+    }
+
+@app.put("/campaigns/{campaign_id}")
+def update_campaign(campaign_id: int, req: CampaignUpdate, db: Session = Depends(get_db)):
+    campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
+    if not campaign:
+        raise HTTPException(404, "Campaign not found")
+    if req.collected is not None:
+        campaign.collected = min(req.collected, campaign.goal)
+    if req.participants is not None:
+        campaign.participants = req.participants
+    if req.status is not None:
+        campaign.status = req.status
+    if campaign.collected >= campaign.goal:
+        campaign.status = "completed"
+    db.commit()
+    db.refresh(campaign)
+    return {
+        "id": campaign.id,
+        "title": campaign.title,
+        "description": campaign.description,
+        "goal": campaign.goal,
+        "collected": round(campaign.collected, 2),
+        "participants": campaign.participants,
+        "status": campaign.status,
+        "color": campaign.color
+    }
+
+
+# ── Admin API Endpoints ───────────────────────────────────
+
+@app.get("/admin/stats")
+def get_admin_stats(db: Session = Depends(get_db)):
+    """System-wide statistics for the admin dashboard."""
+    from sqlalchemy import func
+    total_users = db.query(User).count()
+    total_citizens = db.query(User).filter(User.role == "Citizen").count()
+    total_recyclers = db.query(User).filter(User.role == "Recycler").count()
+    total_ngos = db.query(User).filter(User.role == "NGO").count()
+    total_admins = db.query(User).filter(User.role == "Admin").count()
+
+    total_scans = db.query(ScanHistory).count()
+    total_points = db.query(func.coalesce(func.sum(User.eco_points), 0)).scalar()
+    total_waste_kg = db.query(func.coalesce(func.sum(User.total_waste_kg), 0)).scalar()
+    total_co2_saved = db.query(func.coalesce(func.sum(User.total_co2_saved), 0)).scalar()
+    total_trees = db.query(func.coalesce(func.sum(User.trees_saved), 0)).scalar()
+
+    # Scans in the last 24h
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    scans_today = db.query(ScanHistory).filter(ScanHistory.timestamp >= cutoff).count()
+
+    return {
+        "total_users": total_users,
+        "role_breakdown": {
+            "Citizen": total_citizens,
+            "Recycler": total_recyclers,
+            "NGO": total_ngos,
+            "Admin": total_admins
+        },
+        "total_scans": total_scans,
+        "scans_today": scans_today,
+        "total_eco_points": int(total_points),
+        "total_waste_kg": round(float(total_waste_kg), 2),
+        "total_co2_saved": round(float(total_co2_saved), 2),
+        "total_trees_saved": round(float(total_trees), 2)
+    }
+
+@app.get("/admin/users")
+def get_all_users(db: Session = Depends(get_db)):
+    """Return all registered users for admin management."""
+    users = db.query(User).order_by(User.eco_points.desc()).all()
+    return [{
+        "id": u.id,
+        "name": u.name,
+        "email": u.email,
+        "role": u.role,
+        "location": u.location,
+        "eco_points": u.eco_points,
+        "total_waste_kg": round(u.total_waste_kg, 2),
+        "total_co2_saved": round(u.total_co2_saved, 2),
+        "trees_saved": round(u.trees_saved, 2),
+        "current_streak": u.current_streak
+    } for u in users]
+
+@app.delete("/admin/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    """Delete a user (admin action)."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
+    # Delete their scan history first
+    db.query(ScanHistory).filter(ScanHistory.user_id == user_id).delete()
+    db.delete(user)
+    db.commit()
+    return {"success": True, "deleted_user_id": user_id}
+
+@app.get("/admin/waste-breakdown")
+def get_waste_breakdown(db: Session = Depends(get_db)):
+    """Waste type breakdown from all scans."""
+    from sqlalchemy import func
+    scans = db.query(ScanHistory).all()
+    total_items = sum(s.items_count for s in scans)
+    total_waste = sum(s.waste_kg for s in scans)
+    total_points = sum(s.points_earned for s in scans)
+
+    # Simulated zone distribution based on actual data scale
+    import random
+    zones = ["North", "South", "East", "West", "Central"]
+    zone_data = []
+    for z in zones:
+        zone_data.append({
+            "zone": z,
+            "waste_kg": round(total_waste * random.uniform(0.1, 0.4), 2) if total_waste > 0 else round(random.uniform(5, 50), 2),
+            "scans": max(1, int(len(scans) * random.uniform(0.1, 0.4)))
+        })
+
+    return {
+        "total_items_scanned": total_items,
+        "total_waste_kg": round(total_waste, 2),
+        "total_points_distributed": total_points,
+        "zone_distribution": zone_data
+    }
+
+@app.get("/admin/recent-scans")
+def get_recent_scans(db: Session = Depends(get_db)):
+    """Recent scan activity across all users."""
+    scans = db.query(ScanHistory).order_by(ScanHistory.timestamp.desc()).limit(20).all()
+    result = []
+    for s in scans:
+        user = db.query(User).filter(User.id == s.user_id).first()
+        result.append({
+            "id": s.id,
+            "user_name": user.name if user else "Unknown",
+            "user_role": user.role if user else "Unknown",
+            "timestamp": s.timestamp.isoformat(),
+            "items_count": s.items_count,
+            "points_earned": s.points_earned,
+            "waste_kg": round(s.waste_kg, 2),
+            "co2_saved": round(s.waste_kg * 2.5, 2)
+        })
+    return result
+
+@app.get("/admin/alerts")
+def get_admin_alerts(db: Session = Depends(get_db)):
+    """System alerts for the admin dashboard."""
+    from sqlalchemy import func
+    total_users = db.query(User).count()
+    total_scans = db.query(ScanHistory).count()
+    total_waste = db.query(func.coalesce(func.sum(User.total_waste_kg), 0)).scalar()
+
+    alerts = []
+    if total_users == 0:
+        alerts.append({"type": "warning", "message": "No users registered yet. Promote the platform!", "severity": "medium"})
+    if total_scans == 0:
+        alerts.append({"type": "info", "message": "No scans recorded yet. Encourage citizens to use the scanner.", "severity": "low"})
+    if float(total_waste) > 100:
+        alerts.append({"type": "success", "message": f"Milestone! Over {int(total_waste)}kg of waste recycled across the city!", "severity": "high"})
+    if total_users > 0 and total_scans / max(1, total_users) < 2:
+        alerts.append({"type": "warning", "message": "Low engagement: avg scans per user is below 2. Consider awareness campaigns.", "severity": "medium"})
+
+    # Always have at least one informational alert
+    alerts.append({"type": "info", "message": f"System running with {total_users} users and {total_scans} total scans.", "severity": "low"})
+
+    return alerts
 
 
 if __name__ == "__main__":
